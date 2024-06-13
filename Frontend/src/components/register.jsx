@@ -6,17 +6,13 @@ import axios from 'axios';
 const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async(event) => {
     event.preventDefault();
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password) {
       alert('All fields are required');
-    }
-    else if (password !== confirmPassword) {
-      alert('Passwords do not match');
     }
     else if (!regex.test(email)) {
         alert('Enter a valid email');
@@ -64,19 +60,7 @@ const Register = () => {
             value={password}
             onChange={(e)=>setPassword(e.target.value)}
           />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="confirmPassword"
-            label="Confirm Password"
-            type="password"
-            id="confirmPassword"
-            autoComplete="current-password"
-            value={confirmPassword}
-            onChange={(e)=>setConfirmPassword(e.target.value)}
-          />
+
           <Button
             type="submit"
             fullWidth
