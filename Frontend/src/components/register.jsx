@@ -1,18 +1,30 @@
-import React, {useState} from 'react';
-import {Container, TextField, Button, Box, Typography} from '@mui/material';
+import React, { useState } from 'react';
+import { Container, TextField, Button, Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!email || !password) {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !password || !confirmPassword) {
       alert('All fields are required');
-    } else {
-      navigate('/dashboard')
+    }
+    else if (password !== confirmPassword) {
+      alert('Passwords do not match');
+    }
+    else if (!regex.test(email)) {
+        alert('Enter a valid email');
+    }
+    else if (password.length <8) {
+        alert('Enter atleast eight characters');
+    }
+    else {
+      navigate('/login')
       console.log('Email:', email);
       console.log('Password:', password);
     }
@@ -21,7 +33,7 @@ const Login = () => {
   return (
     <Container maxWidth="xs">
       <Box display="flex" flexDirection="column" alignItems="center" mt={8}>
-        <Typography variant="h4" gutterBottom>Login</Typography>
+        <Typography variant="h4" gutterBottom>Register</Typography>
         <form onSubmit={handleSubmit}>
           <TextField
             variant="outlined"
@@ -49,13 +61,27 @@ const Login = () => {
             value={password}
             onChange={(e)=>setPassword(e.target.value)}
           />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            id="confirmPassword"
+            autoComplete="current-password"
+            value={confirmPassword}
+            onChange={(e)=>setConfirmPassword(e.target.value)}
+          />
           <Button
             type="submit"
             fullWidth
             variant="contained"
             color="primary"
             sx={{ mt: 3, mb: 2 }}
-          >Sign In
+          >
+            Register
           </Button>
         </form>
       </Box>
@@ -63,4 +89,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
