@@ -1,20 +1,28 @@
-import React, {useState} from 'react';
-import {Container, TextField, Button, Box, Typography} from '@mui/material';
+import React, { useState } from 'react';
+import { Container, TextField, Button, Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!email || !password) {
       alert('All fields are required');
-    } else {
-      navigate('/dashboard')
-      console.log('Email:', email);
-      console.log('Password:', password);
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:8081/login', { email, password });
+      console.log('Login Successful:', response.data);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login Failed:', error.response.data);
+      alert('Login failed. Please check your credentials and try again.');
     }
   };
 
@@ -55,7 +63,8 @@ const Login = () => {
             variant="contained"
             color="primary"
             sx={{ mt: 3, mb: 2 }}
-          >Sign In
+          >
+            Sign In
           </Button>
         </form>
       </Box>
