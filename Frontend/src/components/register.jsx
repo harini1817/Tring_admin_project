@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -8,7 +9,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async(event) => {
     event.preventDefault();
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !password || !confirmPassword) {
@@ -24,9 +25,11 @@ const Register = () => {
         alert('Enter atleast eight characters');
     }
     else {
-      navigate('/login')
-      console.log('Email:', email);
-      console.log('Password:', password);
+      axios.post('http://localhost:8081/register', { email, password })
+        .then(res => {
+          navigate('/login');
+        })
+        .catch(err => console.log(err));
     }
   };
 
