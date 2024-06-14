@@ -3,32 +3,49 @@ import { Container, TextField, Button, Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [values, setValues] = useState({
+    email: '',
+    password : '',
+    });
   const navigate = useNavigate();
+
+  const handleChange = (e) =>{
+    const{name,value} = e.target;
+    setValues({...values,[name]:value,})
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!email || !password) {
-      alert('All fields are required');
-      return;
-    }
-
+    const {email,password} = values;
     try {
-      const response = await axios.post('http://localhost:8081/login', { email, password });
-      console.log('Login Successful:', response.data);
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Login Failed:', error.response.data);
-      alert('Login failed. Please check your credentials and try again.');
-    }
-  };
+        const response = await axios.post('http://localhost:8081/login', { email, password },{
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+        });
 
+        if (response.data.token) {
+            localStorage.setItem('token', response.data.token);
+            navigate('/dashboard');
+        } else {
+            alert('Invalid email or password');
+        }
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+    } else {
+        console.error(err);
+        alert('An error occurred while logging in');
+    }
+    }
+};
   return (
+    <div className='box'>
     <Container maxWidth="xs">
-      <Box display="flex" flexDirection="column" alignItems="center" mt={8}>
+      <Box className ='container' mt={8}>
         <Typography variant="h4" gutterBottom>Login</Typography>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -39,10 +56,8 @@ const Login = () => {
             id="email"
             label="Email Address"
             name="email"
-            autoComplete="email"
-            autoFocus
-            value={email}
-            onChange={(e)=>setEmail(e.target.value)}
+            value={values.email}
+            onChange={handleChange}
           />
           <TextField
             variant="outlined"
@@ -53,22 +68,21 @@ const Login = () => {
             label="Password"
             type="password"
             id="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e)=>setPassword(e.target.value)}
+            value={values.password}
+            onChange={handleChange}
           />
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            color="primary"
-            sx={{ mt: 3, mb: 2 }}
+            sx={{ mt: 3, mb: 2, bgcolor: 'black', color: 'white' }}
           >
             Sign In
           </Button>
         </form>
       </Box>
     </Container>
+    </div>
   );
 };
 

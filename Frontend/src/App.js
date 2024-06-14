@@ -10,6 +10,7 @@ function App() {
         <Routes>
           <Route path='/login' Component={Login}/>
           <Route path='/' Component={Register}/>
+          <Route path='/register' Component={Register}/>
           <Route path='/dashboard' Component={Dashboard}/>
         </Routes>
       </Router>
