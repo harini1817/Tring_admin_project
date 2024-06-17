@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from './Autorization'; 
+
 import './styles/boxmodel.css';
 
 const Register = () => {
@@ -35,13 +36,15 @@ const Register = () => {
     } else if (!contactregex.test(contact)) {
       alert('Enter a valid 10-digit contact number');
     } else {
-      axios.post('http://localhost:8081/register', { name, email, password, city, contact })
-        .then(res => {
-          navigate('/login');
-        })
-        .catch(err => console.log(err));
+      try {
+        await axiosInstance.post('/register', { name, email, password, city, contact });
+        navigate('/login');
+    } catch (err) {
+        console.error(err);
     }
-  };
+}
+};
+
 
   return (
     <Container maxWidth="xs">

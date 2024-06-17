@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from './Autorization'; 
 import './styles/grid.css';
 
 const Dashboard = () => {
@@ -27,6 +27,7 @@ const Dashboard = () => {
     const checkTokenExpiration = () => {
       const decodedToken = decodeToken(token);
       if (decodedToken && decodedToken.exp < Date.now() / 1000) {
+        localStorage.removeItem('token');
         alert('Session expired, please login again.');
         navigate('/login', { replace: true });
       }
@@ -35,20 +36,16 @@ const Dashboard = () => {
     const intervalId = setInterval(checkTokenExpiration, 1000);
 
     const fetchUsers = async () => {
-      try {
-        const response = await axios.get('http://localhost:8081/users', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const set = response.data.map((user, index) => ({ ...user, id: index }));
-        setUsers(set);
-      } catch (err) {
-        console.error("Error in fetching users", err);
-        if (err.response && err.response.status === 401) {
-          navigate('/login', { replace: true });
+        try {
+            const response = await axiosInstance.get('/users');
+            const set = response.data.map((user, index) => ({ ...user, id: index }));
+            setUsers(set);
+        } catch (err) {
+            console.error("Error in fetching users", err);
+            if (err.response && err.response.status === 401) {
+                navigate('/login', { replace: true });
+            }
         }
-      }
     };
 
     fetchUsers();
