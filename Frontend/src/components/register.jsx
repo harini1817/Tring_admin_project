@@ -6,37 +6,36 @@ import './styles/boxmodel.css';
 
 const Register = () => {
   const [values, setValues] = useState({
-      name: '',
-      email: '',
-      password : '',
-      city  :'',
-      contact : '',
-      });
+    name: '',
+    email: '',
+    password: '',
+    city: '',
+    contact: '',
+  });
   const navigate = useNavigate();
-  const handleChange = (e) =>{
-    const{name,value} = e.target;
-    setValues({...values,[name]:value,})
+  
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setValues({ ...values, [name]: value });
   };
-  const handleSubmit = async(event) => {
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const {name,email,password,city,contact} = values;
+    const { name, email, password, city, contact } = values;
 
     const emailregex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const contactregex = /^\d{10}$/;
-    if (!name ||!email || !password || !city || !contact) {
+    
+    if (!name || !email || !password || !city || !contact) {
       alert('All fields are required');
-    }
-    else if (!emailregex.test(email)) {
-        alert('Enter a valid email');
-    }
-    else if (password.length <8) {
-        alert('Enter atleast eight characters');
-    }
-    else if (!contactregex.test(contact)) {
-      alert('Enter a valid 10 digit contact number');
-    }
-    else {
-      axios.post('http://localhost:8081/register', {name,email,password,city,contact})
+    } else if (!emailregex.test(email)) {
+      alert('Enter a valid email');
+    } else if (password.length < 8) {
+      alert('Enter at least eight characters');
+    } else if (!contactregex.test(contact)) {
+      alert('Enter a valid 10-digit contact number');
+    } else {
+      axios.post('http://localhost:8081/register', { name, email, password, city, contact })
         .then(res => {
           navigate('/login');
         })
@@ -49,7 +48,7 @@ const Register = () => {
       <Box className="container" mt={8}>
         <Typography variant="h4" gutterBottom>Register</Typography>
         <form onSubmit={handleSubmit}>
-        <TextField
+          <TextField
             variant="outlined"
             margin="normal"
             required
