@@ -1,18 +1,14 @@
-.container {
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
     padding: 20px;
 }
-.header {
-    margin-bottom: 20px;
-}
-
-.header h1 {
-    display: inline-block;
-    margin-right:350px;
-}
-
 .logout {
     padding: 15px 20px;
     background-color: black;
+    margin-right: 40px;
     color: white;
     border: none;
     border-radius: 5px;
