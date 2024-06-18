@@ -38,6 +38,8 @@ const Login = () => {
   };
 
   return (
+    <div className='page'>
+
     <div className='box'>
       <Container maxWidth="xs">
         <Box className="container" mt={8}>
@@ -79,6 +81,7 @@ const Login = () => {
           </form>
         </Box>
       </Container>
+    </div>
     </div>
   );
 };
