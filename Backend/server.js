@@ -13,7 +13,6 @@ const db = mysql.createConnection({
     user: 'root',
     password: "Sairam@1796",
     database: 'my_db',
-    auth_plugin:'mysql_native_password'
 
 });
 
