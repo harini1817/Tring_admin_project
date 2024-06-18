@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axiosInstance from './authorization';
 import './styles/dashboard.css';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
 
 const Dashboard = () => {
     const [users, setUsers] = useState([]);
+    const [selectedUsers, setSelectedUsers] = useState([]);
     const [email, setEmail] = useState('');
+    const [rowModesModel, setRowModesModel] = useState({});
     const navigate = useNavigate();
     const location = useLocation();
     const token = location.state?.token;
@@ -62,26 +68,135 @@ const Dashboard = () => {
         navigate('/login', { replace: true });
     };
 
+    const handleDelete = async (emails) => {
+        try {
+            await Promise.all(emails.map(email => axiosInstance.delete(`/users/${email}`)));
+            setUsers(users.filter(user => !emails.includes(user.email)));
+            setSelectedUsers([]);
+        } catch (err) {
+            console.error("Error deleting user", err);
+        }
+    };
+
+    const handleEditSave = async (user) => {
+        try {
+            const updatedUser = {
+                name: user.name,
+                email: user.email,
+                city: user.city,
+                contact: user.contact,
+                newEmail: user.email,
+            };
+
+            await axiosInstance.put(`/users/${user.email}`, updatedUser);
+            setUsers(users.map(u => (u.email === user.email ? user : u)));
+        } catch (err) {
+            console.error("Error updating user", err);
+        }
+    };
+
+    const handleRowEditStart = (params, event) => {
+        event.defaultMuiPrevented = true;
+    };
+
+    const handleRowEditStop = (params, event) => {
+        event.defaultMuiPrevented = true;
+    };
+
+    const processRowUpdate = async (newRow) => {
+        await handleEditSave(newRow);
+        return newRow;
+    };
+
+    const handleEditClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: 'edit' } });
+    };
+
+    const handleSaveClick = (id) => async () => {
+        const row = users.find((user) => user.id === id);
+        await handleEditSave(row);
+        setRowModesModel({ ...rowModesModel, [id]: { mode: 'view' } });
+    };
+
+    const handleCancelClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: 'view', ignoreModifications: true } });
+    };
+
     const columns = [
-        { field: 'name', headerName: 'Name', width: 200 },
-        { field: 'email', headerName: 'Email', width: 250 },
-        { field: 'city', headerName: 'City', width: 150 },
-        { field: 'contact', headerName: 'Contact', width: 150 },
+        { field: 'name', headerName: 'Name', width: 200, editable: true },
+        { field: 'email', headerName: 'Email', width: 250, editable: true },
+        { field: 'city', headerName: 'City', width: 150, editable: true },
+        { field: 'contact', headerName: 'Contact', width: 150, editable: true },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 150,
+            renderCell: (params) => {
+                const isInEditMode = rowModesModel[params.id]?.mode === 'edit';
+
+                return (
+                    <>
+                        {isInEditMode ? (
+                            <>
+                                <GridActionsCellItem
+                                    icon={<SaveIcon />}
+                                    label="Save"
+                                    onClick={handleSaveClick(params.id)}
+                                />
+                                <GridActionsCellItem
+                                    icon={<CancelIcon />}
+                                    label="Cancel"
+                                    onClick={handleCancelClick(params.id)}
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <GridActionsCellItem
+                                    icon={<EditIcon />}
+                                    label="Edit"
+                                    onClick={handleEditClick(params.id)}
+                                />
+                                <GridActionsCellItem
+                                    icon={<DeleteIcon />}
+                                    label="Delete"
+                                    onClick={() => handleDelete([params.row.email])}
+                                />
+                            </>
+                        )}
+                    </>
+                );
+            }
+        },
     ];
 
     return (
         <div>
             <div className="header">
                 <h1 style={{ display: 'inline-block' }}>Welcome to Dashboard</h1>
-                <p >{email}</p>
+                <p>{email}</p>
                 <button className="logout" onClick={handleLogout}>Logout</button>
             </div>
+            <button
+                className="delete-selected"
+                onClick={() => handleDelete(selectedUsers)}
+                disabled={selectedUsers.length === 0}
+            >
+                Delete Selected
+            </button>
             <DataGrid
                 rows={users}
                 columns={columns}
                 pageSize={5}
                 checkboxSelection
                 disableSelectionOnClick
+                onSelectionModelChange={(newSelection) => {
+                    setSelectedUsers(newSelection.map(id => users.find(user => user.id === id).email));
+                }}
+                editMode="row"
+                rowModesModel={rowModesModel}
+                onRowEditStart={handleRowEditStart}
+                onRowEditStop={handleRowEditStop}
+                processRowUpdate={processRowUpdate}
             />
         </div>
     );
