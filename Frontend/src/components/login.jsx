@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-<<<<<<< Updated upstream
-import axiosInstance from './Autorization';
-=======
 import axiosInstance from './authorization';
->>>>>>> Stashed changes
 
 const Login = () => {
   const [values, setValues] = useState({
@@ -26,10 +22,7 @@ const Login = () => {
       const response = await axiosInstance.post('/login', { email, password });
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
-<<<<<<< Updated upstream
-=======
         localStorage.setItem('email', email);
->>>>>>> Stashed changes
         navigate('/dashboard', { state: { token: response.data.token }, replace: true });
       } else {
         alert('Invalid email or password');
@@ -60,10 +53,7 @@ const Login = () => {
               name="email"
               value={values.email}
               onChange={handleChange}
-<<<<<<< Updated upstream
-=======
               InputProps={{ style: { height: '40px' } }}
->>>>>>> Stashed changes
             />
             <TextField
               variant="outlined"
@@ -76,20 +66,13 @@ const Login = () => {
               id="password"
               value={values.password}
               onChange={handleChange}
-<<<<<<< Updated upstream
-=======
               InputProps={{ style: { height: '40px' } }}
->>>>>>> Stashed changes
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
-<<<<<<< Updated upstream
-              sx={{ mt: 3, mb: 2, bgcolor: 'black', color: 'white' }}
-=======
               sx={{ mt: 3, mb: 2, bgcolor: 'black', color: 'white', '&:hover': { bgcolor: '#c62828' }, }}
->>>>>>> Stashed changes
             >
               Sign In
             </Button>
