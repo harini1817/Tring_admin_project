@@ -47,6 +47,7 @@ const Register = () => {
 
 
   return (
+    <div className='box'>
     <Container maxWidth="xs">
       <Box className="container" mt={8}>
         <Typography variant="h4" gutterBottom>Register</Typography>
@@ -111,13 +112,14 @@ const Register = () => {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2, bgcolor: 'black', color: 'white' }}
+            sx={{ mt: 3, mb: 2, bgcolor: 'black', color: 'white','&:hover': {bgcolor: '#c62828'},}}
           >
             Register
           </Button>
         </form>
       </Box>
     </Container>
+    </div>
   );
 };
 

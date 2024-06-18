@@ -120,6 +120,43 @@ app.get('/users', checkAuth, (req, res) => {
         return res.json(results);
     });
 });
+app.delete('/users/:email', checkAuth, (req, res) => {
+    const { email } = req.params;
+    const sql = "DELETE FROM user_details WHERE email = ?";
+    
+    db.query(sql, [email], (err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ message: "Error in db" });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        return res.json({ message: "User deleted successfully" });
+    });
+});
+
+app.put('/users/:email', checkAuth, (req, res) => {
+    const { email } = req.params;
+    const { name, city, contact, newEmail } = req.body;
+
+    if (!name || !city || !contact || !newEmail) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const sql = "UPDATE user_details SET name = ?, city = ?, contact = ?, email = ? WHERE email = ?";
+    db.query(sql, [name, city, contact, newEmail, email], (err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ message: "Error in db" });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        return res.json({ message: "User updated successfully" });
+    });
+});
+
 
 app.get('/protected-route', checkAuth, (req, res) => {
     res.json({ message: "Authorized" });
