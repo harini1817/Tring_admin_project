@@ -10,7 +10,6 @@ import CancelIcon from '@mui/icons-material/Close';
 
 const Dashboard = () => {
     const [users, setUsers] = useState([]);
-    const [selectedUsers, setSelectedUsers] = useState([]);
     const [email, setEmail] = useState('');
     const [rowModesModel, setRowModesModel] = useState({});
     const navigate = useNavigate();
@@ -72,7 +71,6 @@ const Dashboard = () => {
         try {
             await Promise.all(emails.map(email => axiosInstance.delete(`/users/${email}`)));
             setUsers(users.filter(user => !emails.includes(user.email)));
-            setSelectedUsers([]);
         } catch (err) {
             console.error("Error deleting user", err);
         }
@@ -89,7 +87,7 @@ const Dashboard = () => {
             };
 
             await axiosInstance.put(`/users/${user.email}`, updatedUser);
-            setUsers(users.map(u => (u.email === user.email ? user : u)));
+            setUsers(users.map(match => (match.email === user.email ? user : match)));
         } catch (err) {
             console.error("Error updating user", err);
         }
@@ -123,29 +121,23 @@ const Dashboard = () => {
     };
 
     const columns = [
-        { field: 'name', headerName: 'Name', width: 200, editable: true },
-        { field: 'email', headerName: 'Email', width: 250, editable: true },
-        { field: 'city', headerName: 'City', width: 150, editable: true },
-        { field: 'contact', headerName: 'Contact', width: 150, editable: true },
+        { field: 'name', headerName: <span style={{ fontWeight: 'bold' }}>Name</span>, width: 200, editable: true },
+        { field: 'email', headerName: <span style={{ fontWeight: 'bold' }}>Email</span>, width: 250, editable: true },
+        { field: 'city', headerName:  <span style={{ fontWeight: 'bold' }}>City</span>, width: 150, editable: true },
+        { field: 'contact', headerName:  <span style={{ fontWeight: 'bold' }}>Contact</span>, width: 150, editable: true },
         {
-            field: 'actions',
-            headerName: 'Actions',
-            width: 150,
-            renderCell: (params) => {
+        renderCell: (params) => {
                 const isInEditMode = rowModesModel[params.id]?.mode === 'edit';
-
                 return (
                     <>
                         {isInEditMode ? (
                             <>
                                 <GridActionsCellItem
                                     icon={<SaveIcon />}
-                                    label="Save"
                                     onClick={handleSaveClick(params.id)}
                                 />
                                 <GridActionsCellItem
                                     icon={<CancelIcon />}
-                                    label="Cancel"
                                     onClick={handleCancelClick(params.id)}
                                 />
                             </>
@@ -153,12 +145,10 @@ const Dashboard = () => {
                             <>
                                 <GridActionsCellItem
                                     icon={<EditIcon />}
-                                    label="Edit"
                                     onClick={handleEditClick(params.id)}
                                 />
                                 <GridActionsCellItem
                                     icon={<DeleteIcon />}
-                                    label="Delete"
                                     onClick={() => handleDelete([params.row.email])}
                                 />
                             </>
@@ -173,25 +163,13 @@ const Dashboard = () => {
         <div>
             <div className="header">
                 <h1 style={{ display: 'inline-block' }}>Welcome to Dashboard</h1>
-                <p>{email}</p>
+                <p className='mail'>{email}</p>
                 <button className="logout" onClick={handleLogout}>Logout</button>
             </div>
-            <button
-                className="delete-selected"
-                onClick={() => handleDelete(selectedUsers)}
-                disabled={selectedUsers.length === 0}
-            >
-                Delete Selected
-            </button>
             <DataGrid
                 rows={users}
                 columns={columns}
                 pageSize={5}
-                checkboxSelection
-                disableSelectionOnClick
-                onSelectionModelChange={(newSelection) => {
-                    setSelectedUsers(newSelection.map(id => users.find(user => user.id === id).email));
-                }}
                 editMode="row"
                 rowModesModel={rowModesModel}
                 onRowEditStart={handleRowEditStart}
