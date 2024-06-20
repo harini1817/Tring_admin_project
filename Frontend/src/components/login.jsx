@@ -20,12 +20,16 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = values;
+    if (!email || !password) {
+      setSnackbar({ open: true,message: 'All fields are required', severity: 'error' });
+    }
     try {
       const response = await axiosInstance.post('/login', { email, password });
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('email', email);
         navigate('/dashboard', { state: { token: response.data.token }, replace: true });
+        setSnackbar({ open: true,message: 'Invalid Email or Password', severity: 'success' });
       } else {
         setSnackbar({ open: true,message: 'Invalid Email or Password', severity: 'error' });
       }
@@ -35,7 +39,7 @@ const Login = () => {
         setSnackbar({ open: true,message: 'Invalid Email or Password', severity: 'error' });
       } else {
         console.error(err);
-        setSnackbar({ open: true,message: 'Error while login', severity: 'error' });
+        console.log(err);
       }
     }
   };
@@ -44,35 +48,38 @@ const Login = () => {
   };
 
   return (
-      <div className='box'>
+      <div>
+        <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical:'top',horizontal: 'center' }} sx={{ width: '100%', maxWidth: '50vw' }} >
+        <Alert onClose={handleCloseSnackbar}  variant="filled" severity={snackbar.severity} sx={{ width: '100%',textAlign: 'center'}} >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
         <Container maxWidth="xs">
-          <Box className="container" mt={8}>
-            <Typography variant="h4" gutterBottom style={{color: '#6a1b9a',fontWeight:'bold'}}>Login</Typography>
+          <Box className="container" mt={14}>
+            <Typography variant="h4" style={{color: '#6a1b9a',fontWeight:'bold', textAlign:"center"}}>Login</Typography>
             <form onSubmit={handleSubmit}>
               <TextField
-                variant="outlined"
                 margin="normal"
-                required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label="Email Address *"
                 name="email"
                 value={values.email}
                 onChange={handleChange}
-                InputProps={{ style: { height: '40px' } }}
+                InputProps={{className:'input-root'}}
+                InputLabelProps={{className:'input-label'}}
               />
               <TextField
-                variant="outlined"
                 margin="normal"
-                required
                 fullWidth
                 name="password"
-                label="Password"
+                label="Password *"
                 type="password"
                 id="password"
                 value={values.password}
                 onChange={handleChange}
-                InputProps={{ style: { height: '40px' } }}
+                InputProps={{className:'input-root'}}
+                InputLabelProps={{className:'input-label'}}
               />
               <Button
                 type="submit"
@@ -80,19 +87,14 @@ const Login = () => {
                 variant="contained"
                 sx={{ mt: 3, mb: 2, bgcolor: 'black', color: 'white', '&:hover': { bgcolor: '#6a1b9a  ' }, }}
               >
-                Sign In
+              Login 
               </Button>
-              <Typography variant="body2">
+              <Typography variant="body2" textAlign="center">
                 New user ? <Link href="/register">Register here</Link>
               </Typography>
             </form>
           </Box>
         </Container>
-        <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical:'top',horizontal: 'center' }}>
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-        </Snackbar>
       </div>
   );
 };

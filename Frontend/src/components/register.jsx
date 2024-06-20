@@ -39,6 +39,7 @@ const Register = () => {
     else {
       axios.post('http://localhost:8081/register', values)
         .then(() => {
+          setSnackbar({ open: true, message: 'Registered Successfully', severity: 'success' });
           navigate('/login');
         })
         .catch(err => {
@@ -56,66 +57,66 @@ const Register = () => {
   };
 
   return (
-    <div className='box'>
-      <Container maxWidth="xs">
-        <Box className="container" mt={8}>
-        <Typography variant="h4" gutterBottom style={{color: '#6a1b9a',fontWeight:'bold'}}>Register</Typography>
+    <div>
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical:'top',horizontal: 'center' }} sx={{ width: '100%', maxWidth: '50vw' }} >
+        <Alert onClose={handleCloseSnackbar}  variant="filled" severity={snackbar.severity} sx={{ width: '100%',textAlign: 'center'}} >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+      <Container maxWidth="xs"  style={{height:'100px'}}>
+        <Box className="container"  mt={6} mb={6}>
+        <Typography variant="h4" style={{color: '#6a1b9a',fontWeight:'bold',textAlign:"center"}}>Register</Typography>
           <form onSubmit={handleSubmit}>
             <TextField
-              variant="outlined"
               margin="normal"
-              required
               fullWidth
-              label="Name"
+              label="Name *"
               name="name"
               value={values.name}
               onChange={handleChange}
-              InputProps={{style:{height:'40px'}}}
+              InputProps={{className:'input-root'}}
+              InputLabelProps={{className:'input-label'}}
             />
             <TextField
-              variant="outlined"
               margin="normal"
-              required
               fullWidth
-              label="Email Address"
+              label="Email Address *"
               name="email"
               value={values.email}
               onChange={handleChange}
-              InputProps={{style:{height:'40px'}}}
+              InputProps={{className:'input-root'}}
+              InputLabelProps={{className:'input-label'}}
             />
             <TextField
-              variant="outlined"
               margin="normal"
-              required
               fullWidth
               name="password"
-              label="Password"
+              label="Password *"
               type="password"
               value={values.password}
               onChange={handleChange}
-              InputProps={{style:{height:'40px'}}}
+              InputProps={{className:'input-root'}}
+              InputLabelProps={{className:'input-label'}}
             />
             <TextField
-              variant="outlined"
               margin="normal"
-              required
               fullWidth
-              label="City"
+              label="City *"
               name="city"
               value={values.city}
               onChange={handleChange}
-              InputProps={{style:{height:'40px'}}}
+              InputProps={{className:'input-root'}}
+              InputLabelProps={{className:'input-label'}}
             />
             <TextField
-              variant="outlined"
               margin="normal"
-              required
               fullWidth
-              label="Contact No"
+              label="Contact No *"
               name="contact"
               value={values.contact}
               onChange={handleChange}
-              InputProps={{style:{height:'40px'}}}
+              InputProps={{className:'input-root'}}
+              InputLabelProps={{className:'input-label'}}
             />
             <Button
               type="submit"
@@ -125,17 +126,12 @@ const Register = () => {
             >
               Register
             </Button>
-            <Typography variant="body2">
+            <Typography variant="body2" textAlign="center">
                 Existing User ? <Link href="/login">Login here</Link>
             </Typography>
           </form>
         </Box>
       </Container>
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical:'top',horizontal: 'center' }}>
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </div>
   );
 };

@@ -1,10 +1,27 @@
 .container{
   padding: 20px;
-  border: 2px solid rgb(238, 238, 238);
+  /* border: 2px solid rgb(238, 238, 238); */
   border-radius: 15px;
-  /* box-shadow: 0 0 10px rgba(36, 189, 75, 0.5); */
+  box-shadow: 0 0 5px rgb(10, 10, 10);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+.input-root {
+  height: 40px;
+}
+
+.input-label {
+  font-size: 14px !important;
+  top:-3px !important;
+}
+
+.MuiInputLabel-root.Mui-focused {
+  color: #000 !important;
+  font-size: 17px !important;
+}
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #000 !important;
+}
+
 
