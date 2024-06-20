@@ -11,7 +11,7 @@ app.use(express.json());
 const db = mysql.createConnection({
     host: "localhost",
     user: 'root',
-    password: "Sairam@1796",
+    password: "1234",
     database: 'my_db',
 
 });
@@ -45,49 +45,73 @@ app.post('/register', (req, res) => {
             return res.status(500).json({ message: "Error in hashing password" });
         }
 
-        const sql = "INSERT INTO user_details (name, email, password, city, contact) VALUES (?, ?, ?, ?, ?)";
-        db.query(sql, [name, email, hash, city, contact], (err, result) => {
+        const checkEmailQuery = "SELECT * FROM user_details WHERE email = ?";
+        db.query(checkEmailQuery, [email], (err, result) => {
             if (err) {
                 console.log(err);
-                return res.status(500).json({ message: "Error in db" });
+                return res.status(501).json({ message: "Error in db" });
             }
-            return res.json({ message: "User registered successfully" });
+
+            if (result.length > 0) {
+                return res.status(401).json({ message: "Email already exists" });
+            }
+
+            const sql = "INSERT INTO user_details (name, email, password, city, contact) VALUES (?, ?, ?, ?, ?)";
+            db.query(sql, [name, email, hash, city, contact], (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(501).json({ message: "Error in db" });
+                }
+                return res.json({ message: "User registered successfully" });
+            });
         });
     });
 });
+
+
 
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(400).json({ Message: "Email and password are required" });
+        return res.status(402).json({ Message: "Email and password are required" });
     }
 
     const sql = "SELECT * FROM user_details WHERE email = ?";
     db.query(sql, [email], (err, result) => {
         if (err) {
             console.log(err);
-            return res.status(500).json({ Message: "Error in db" });
+            return res.status(501).json({ Message: "Error in db" });
         }
 
         if (result.length === 0) {
-            return res.status(401).json({ Message: "Invalid email or password" });
+            return res.status(403).json({ Message: "Invalid email or password" });
         }
 
         const user = result[0];
         bcrypt.compare(password.toString(), user.password, (err, isMatch) => {
             if (err) {
                 console.log(err);
-                return res.status(500).json({ Message: "Error in password comparison" });
+                return res.status(503).json({ Message: "Error in password comparison" });
             }
 
             if (isMatch) {
                 const sessionId = generateSessionId(email);
-                const expirationTime = Math.floor(Date.now() / 1000) + 20; // 20 seconds expiration
+                const expirationTime = Math.floor(Date.now() / 1000) + 50; // 20 seconds expiration
                 const token = jwt.sign({ sessionId, exp: expirationTime }, 'your_secret_key_here');
+
+                // Update token field in the database
+                const updateTokenQuery = "UPDATE user_details SET token = ? WHERE email = ?";
+                db.query(updateTokenQuery, [token, email], (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(501).json({ message: "Error in db" });
+                    }
+                });
+
                 return res.json({ token, login: true, expirationTime });
             } else {
-                return res.status(401).json({ Message: "Invalid email or password" });
+                return res.status(403).json({ Message: "Invalid email or password" });
             }
         });
     });
@@ -95,26 +119,41 @@ app.post('/login', (req, res) => {
 
 
 const checkAuth = (req, res, next) => {
-    const authHeader =     req.headers['authorization'];
+    const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(404).json({ message: "Unauthorized" });
     }
     const token = authHeader.split(' ')[1];
     jwt.verify(token, 'your_secret_key_here', (err, decoded) => {
         if (err) {
-            return res.status(401).json({ message: "Unauthorized" });
+            return res.status(404).json({ message: "Unauthorized" });
         }
         req.userData = decoded;
-        next();
+
+        // Check if the token in the database matches the token in the request
+        const checkTokenQuery = "SELECT token FROM user_details WHERE email = ?";
+        db.query(checkTokenQuery, [decoded.email], (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(501).json({ message: "Error in db" });
+            }
+
+            if (!result || result.length === 0 || result[0].token !== token) {
+                return res.status(404).json({ message: "Session invalid" });
+            }
+
+            next();
+        });
     });
 };
+
 
 app.get('/users', checkAuth, (req, res) => {
     const sql = "SELECT name, email, city, contact FROM user_details";
     db.query(sql, (err, results) => {
         if (err) {
             console.log(err);
-            return res.status(500).json({ message: "Error in db" });
+            return res.status(501).json({ message: "Error in db" });
         }
         return res.json(results);
     });
@@ -126,10 +165,10 @@ app.delete('/users/:email', checkAuth, (req, res) => {
     db.query(sql, [email], (err, result) => {
         if (err) {
             console.log(err);
-            return res.status(500).json({ message: "Error in db" });
+            return res.status(501).json({ message: "Error in db" });
         }
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(405).json({ message: "User not found" });
         }
         return res.json({ message: "User deleted successfully" });
     });
@@ -150,7 +189,7 @@ app.put('/users/:email', checkAuth, (req, res) => {
             return res.status(500).json({ message: "Error in db" });
         }
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(405).json({ message: "User not found" });
         }
         return res.json({ message: "User updated successfully" });
     });
