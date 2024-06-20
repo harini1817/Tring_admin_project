@@ -63,8 +63,8 @@ const Register = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-      <Container maxWidth="xs"  style={{height:'100px'}}>
-        <Box className="container"  mt={6} mb={6}>
+      <Container maxWidth="xs">
+        <Box className="container"  mt={6} >
         <Typography variant="h4" style={{color: '#6a1b9a',fontWeight:'bold',textAlign:"center"}}>Register</Typography>
           <form onSubmit={handleSubmit}>
             <TextField
