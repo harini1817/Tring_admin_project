@@ -16,7 +16,6 @@ const db = mysql.createConnection({
 
 });
 
-const generateSessionId = (email) => {
 const generateSessionId = (userID) => {
     const timestamp = new Date().getTime();
     const random = 'tring';
