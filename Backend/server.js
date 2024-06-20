@@ -16,10 +16,10 @@ const db = mysql.createConnection({
 
 });
 
-const generateSessionId = (email) => {
+const generateSessionId = (userID) => {
     const timestamp = new Date().getTime();
-    const random = Math.random().toString(36).substring(7);
-    return `${email}_${timestamp}_${random}`;
+    const random = 'tring';
+    return `${userID}_${timestamp}_${random}`;
 };
 
 db.connect(err => {
@@ -30,6 +30,7 @@ db.connect(err => {
     console.log('Connected to database.');
 });
 
+
 app.post('/register', (req, res) => {
     const { name, email, password, city, contact } = req.body;
 
@@ -39,7 +40,7 @@ app.post('/register', (req, res) => {
 
     const saltRounds = 10;
 
-    bcrypt.hash(password.toString(), saltRounds, (err, hash) => { 
+    bcrypt.hash(password.toString(), saltRounds, (err, hash) => {
         if (err) {
             console.log(err);
             return res.status(500).json({ message: "Error in hashing password" });
@@ -62,7 +63,7 @@ app.post('/register', (req, res) => {
                     console.log(err);
                     return res.status(501).json({ message: "Error in db" });
                 }
-                return res.json({ message: "User registered successfully" });
+                return res.json({ message: "User registered successfully", userID: result.insertId });
             });
         });
     });
@@ -89,6 +90,8 @@ app.post('/login', (req, res) => {
         }
 
         const user = result[0];
+        const userID = user.userID; 
+
         bcrypt.compare(password.toString(), user.password, (err, isMatch) => {
             if (err) {
                 console.log(err);
@@ -96,13 +99,12 @@ app.post('/login', (req, res) => {
             }
 
             if (isMatch) {
-                const sessionId = generateSessionId(email);
+                const sessionId = generateSessionId(userID);
                 const expirationTime = Math.floor(Date.now() / 1000) + 50; // 20 seconds expiration
-                const token = jwt.sign({ sessionId, exp: expirationTime }, 'your_secret_key_here');
+                const token = jwt.sign({ sessionId, exp: expirationTime }, 'tring');
 
-                // Update token field in the database
-                const updateTokenQuery = "UPDATE user_details SET token = ? WHERE email = ?";
-                db.query(updateTokenQuery, [token, email], (err, result) => {
+                const updateTokenQuery = "UPDATE user_details SET token = ? WHERE userID = ?";
+                db.query(updateTokenQuery, [token, userID], (err, result) => {
                     if (err) {
                         console.log(err);
                         return res.status(501).json({ message: "Error in db" });
@@ -118,28 +120,30 @@ app.post('/login', (req, res) => {
 });
 
 
+
 const checkAuth = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(404).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "Unauthorized" });
     }
     const token = authHeader.split(' ')[1];
-    jwt.verify(token, 'your_secret_key_here', (err, decoded) => {
+    jwt.verify(token, 'tring', (err, decoded) => {
         if (err) {
-            return res.status(404).json({ message: "Unauthorized" });
+            return res.status(401).json({ message: "Unauthorized" });
         }
         req.userData = decoded;
 
-        // Check if the token in the database matches the token in the request
-        const checkTokenQuery = "SELECT token FROM user_details WHERE email = ?";
-        db.query(checkTokenQuery, [decoded.email], (err, result) => {
+        const sessionId = decoded.sessionId; 
+
+        const checkTokenQuery = "SELECT token FROM user_details WHERE userID = ?"; // Assuming user ID is stored in userID field
+        db.query(checkTokenQuery, [sessionId.split('_')[0]], (err, result) => {
             if (err) {
                 console.log(err);
-                return res.status(501).json({ message: "Error in db" });
+                return res.status(500).json({ message: "Error in db" });
             }
 
             if (!result || result.length === 0 || result[0].token !== token) {
-                return res.status(404).json({ message: "Session invalid" });
+                return res.status(401).json({ message: "Unauthorized" });
             }
 
             next();
@@ -148,8 +152,9 @@ const checkAuth = (req, res, next) => {
 };
 
 
-app.get('/users', checkAuth, (req, res) => {
-    const sql = "SELECT name, email, city, contact FROM user_details";
+
+app.get('/users',checkAuth,  (req, res) => {
+    const sql = "SELECT  name, email, city, contact FROM user_details";
     db.query(sql, (err, results) => {
         if (err) {
             console.log(err);
