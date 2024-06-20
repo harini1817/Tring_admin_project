@@ -64,7 +64,7 @@ const Register = () => {
         </Alert>
       </Snackbar>
       <Container maxWidth="xs">
-        <Box className="container"  mt={6} >
+        <Box className="container"  mt={4} >
         <Typography variant="h4" style={{color: '#6a1b9a',fontWeight:'bold',textAlign:"center"}}>Register</Typography>
           <form onSubmit={handleSubmit}>
             <TextField
