@@ -31,7 +31,7 @@ const Register = () => {
       setSnackbar({ open: true, message: 'Enter a valid mail', severity: 'error' });
     }
     else if (password.length < 8) {
-      setSnackbar({ open: true, message: 'Enter atleast 8 characters', severity: 'error' });
+      setSnackbar({ open: true, message: 'Enter password atleast 8 characters', severity: 'error' });
     }
     else if (!contactregex.test(contact)) {
       setSnackbar({ open: true, message: 'Enter 10 digit valid contact number', severity: 'error' });
@@ -58,7 +58,7 @@ const Register = () => {
 
   return (
     <div className='alignment'>
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical:'top',horizontal: 'center' }} sx={{ width: '100%', maxWidth: '50vw' }} >
+      <Snackbar open={snackbar.open} autoHideDuration={5000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical:'top',horizontal: 'center' }} sx={{ width: '100%', maxWidth: '50vw' }} >
         <Alert onClose={handleCloseSnackbar}  variant="filled" severity={snackbar.severity} sx={{ width: '100%',textAlign: 'center'}} >
           {snackbar.message}
         </Alert>
