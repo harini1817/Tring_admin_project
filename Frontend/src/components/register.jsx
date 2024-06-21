@@ -57,14 +57,14 @@ const Register = () => {
   };
 
   return (
-    <div>
+    <div className='alignment'>
       <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical:'top',horizontal: 'center' }} sx={{ width: '100%', maxWidth: '50vw' }} >
         <Alert onClose={handleCloseSnackbar}  variant="filled" severity={snackbar.severity} sx={{ width: '100%',textAlign: 'center'}} >
           {snackbar.message}
         </Alert>
       </Snackbar>
       <Container maxWidth="xs">
-        <Box className="container"  mt={4} >
+        <Box className="container">
         <Typography variant="h4" style={{color: '#6a1b9a',fontWeight:'bold',textAlign:"center"}}>Register</Typography>
           <form onSubmit={handleSubmit}>
             <TextField
