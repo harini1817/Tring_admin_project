@@ -12,16 +12,22 @@
 }
 
 .input-label {
-  font-size: 14px !important;
-  top:-3px !important;
+  font-size: 13px !important;
+  top:-5px !important;
 }
 
-.MuiInputLabel-root.Mui-focused {
+.MuiInputLabel-root.Mui-focused.MuiInputLabel-shrink {
   color: #000 !important;
-  font-size: 17px !important;
+  font-size: 18px !important;
 }
-.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+
+.Mui-focused .MuiOutlinedInput-notchedOutline{
   border-color: #000 !important;
 }
 
-
+.alignment{
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
