@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Box, Typography , Link,Snackbar, Alert} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from './authorization';
-// import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setAuth } from '../slices/authSlice';
+import axios from 'axios';
 
 const Login = () => {
   const [values, setValues] = useState({
@@ -10,6 +11,7 @@ const Login = () => {
     password: '',
   });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [snackbar,setSnackbar] = useState({open:false});
 
   const handleChange = (e) => {
@@ -24,12 +26,13 @@ const Login = () => {
       setSnackbar({ open: true,message: 'All fields are required', severity: 'error' });
     }
     try {
-      const response = await axiosInstance.post('/login', { email, password });
+      const response = await axios.post('http://localhost:8081/login', { email, password });
       if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('email', email);
+        // localStorage.setItem('token', response.data.token);
+        // localStorage.setItem('email', email);
+        dispatch(setAuth({token: response.data.token,email}));
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
         navigate('/dashboard', { state: { token: response.data.token }, replace: true });
-        setSnackbar({ open: true,message: 'Invalid Email or Password', severity: 'success' });
       } else {
         setSnackbar({ open: true,message: 'Invalid Email or Password', severity: 'error' });
       }

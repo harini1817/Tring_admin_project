@@ -1,21 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
-import { useNavigate, useLocation } from 'react-router-dom';
-import axiosInstance from './authorization';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './styles/dashboard.css';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearAuth} from '../slices/authSlice';
 
 const Dashboard = () => {
     const [users, setUsers] = useState([]);
-    const [email, setEmail] = useState('');
+    // const [email, setEmail] = useState('');
     const [rowModesModel, setRowModesModel] = useState({});
     const navigate = useNavigate();
-    const location = useLocation();
-    const token = location.state?.token;
-
+    // const location = useLocation();
+    const dispatch = useDispatch();
+    const token = useSelector(state => state.auth.token);
+    const email = useSelector(state => state.auth.email);
+    
     useEffect(() => {
         if (!token) {
             navigate('/login', { replace: true });
@@ -33,7 +37,8 @@ const Dashboard = () => {
         const checkTokenExpiration = () => {
             const decodedToken = decodeToken(token);
             if (decodedToken && decodedToken.exp < Date.now() / 1000) {
-                localStorage.clear();
+                // localStorage.clear();
+                dispatch(clearAuth());
                 alert('Session expired, please login again.');
                 navigate('/login', { replace: true });
             }
@@ -43,7 +48,7 @@ const Dashboard = () => {
 
         const fetchUsers = async () => {
             try {
-                const response = await axiosInstance.get('/users');
+                const response = await axios.get('http://localhost:8081/users');
                 const set = response.data.map((user, index) => ({ ...user, id: index }));
                 setUsers(set);
             } catch (err) {
@@ -56,21 +61,22 @@ const Dashboard = () => {
 
         fetchUsers();
 
-        const userEmail = localStorage.getItem('email');
-        setEmail(userEmail);
+        // const userEmail = localStorage.getItem('email');
+        // setEmail(userEmail);
 
         return () => clearInterval(intervalId);
-    }, [token, navigate]);
+    }, [token, navigate,dispatch]);
 
     const handleLogout = () => {
-        localStorage.clear();
+        // localStorage.clear();
+        dispatch(clearAuth());
         navigate('/login', { replace: true });
     };
 
-    const handleDelete = async (emails) => {
+    const handleDelete = async (email) => {
         try {
-            await Promise.all(emails.map(email => axiosInstance.delete(`/users/${email}`)));
-            setUsers(users.filter(user => !emails.includes(user.email)));
+            await axios.delete(`http://localhost:8081/users/${email}`);
+            setUsers(users.filter(user => user.email !== email));
         } catch (err) {
             console.error("Error deleting user", err);
         }
@@ -86,7 +92,7 @@ const Dashboard = () => {
                 newEmail: user.email,
             };
 
-            await axiosInstance.put(`/users/${user.email}`, updatedUser);
+            await axios.put(`http://localhost:8081/users/${user.email}`,updatedUser);
             setUsers(users.map(match => (match.email === user.email ? user : match)));
         } catch (err) {
             console.error("Error updating user", err);
